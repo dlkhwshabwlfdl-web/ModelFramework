@@ -1,0 +1,38 @@
+name: ModelFramework
+version: '${project.version}'
+main: dev.modelframework.ModelFramework
+api-version: '1.21'
+prefix: ModelFramework
+authors:
+  - Amirxht
+description: Lightweight framework for connecting BetterModel to interactive objects
+
+depend:
+  - BetterModel
+
+softdepend:
+  - Oraxen
+  - PlaceholderAPI
+
+commands:
+  model:
+    description: ModelFramework main command
+    usage: /<command> <reload|gui|give|debug|inspect|remove>
+    permission: modelframework.admin
+    aliases:
+      - mf
+      - modelfw
+
+permissions:
+  modelframework.admin:
+    description: Full access to ModelFramework
+    default: op
+  modelframework.gui:
+    description: Access to object selector GUI
+    default: op
+  modelframework.place:
+    description: Permission to place objects
+    default: op
+  modelframework.interact:
+    description: Permission to interact with objects
+    default: true

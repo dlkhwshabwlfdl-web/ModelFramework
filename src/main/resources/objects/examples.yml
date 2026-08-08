@@ -1,0 +1,230 @@
+# ========================================
+# Crate Definitions
+# ========================================
+
+common_crate:
+  display:
+    name: "&f✦ Common Crate"
+    material: CHEST
+    lore:
+      - "&7Right-click to place"
+    slot: 10
+
+  model:
+    id: common_crate
+    scale: 1.0
+    offset-x: 0.0
+    offset-y: 0.0
+    offset-z: 0.0
+
+  placement:
+    type: BLOCK
+    base-material: BARRIER
+
+  state:
+    initial: DEFAULT
+
+  animations:
+    open:
+      animation: animation.common_crate.open
+      loop: false
+      trigger:
+        type: RIGHT_CLICK
+      item:
+        provider: oraxen
+        id: "Common Key"
+        consume: true
+        check: HAND
+      cooldown:
+        time: 2
+      actions:
+        - type: SOUND
+          sound: entity.firework_rocket.blast
+          volume: 1.0
+          pitch: 1.2
+
+    idle:
+      animation: animation.common_crate.idle
+      loop: false
+      trigger:
+        type: RIGHT_CLICK
+      item:
+        required: false
+      cooldown:
+        time: 1
+      actions:
+        - type: SOUND
+          sound: entity.villager.no
+          volume: 0.5
+          pitch: 1.2
+
+
+rare_crate:
+  display:
+    name: "&9✦ Rare Crate"
+    material: CHEST
+    lore:
+      - "&7Right-click to place"
+    slot: 12
+
+  model:
+    id: rare_crate
+    scale: 1.0
+    offset-x: 0.0
+    offset-y: 0.0
+    offset-z: 0.0
+
+  placement:
+    type: BLOCK
+    base-material: BARRIER
+
+  state:
+    initial: DEFAULT
+
+  animations:
+    open:
+      animation: animation.common_crate.open
+      loop: false
+      trigger:
+        type: RIGHT_CLICK
+      item:
+        provider: oraxen
+        id: "Rare Key"
+        consume: true
+        check: HAND
+      cooldown:
+        time: 2
+      actions:
+        - type: SOUND
+          sound: entity.firework_rocket.blast
+          volume: 1.0
+          pitch: 1.0
+
+    idle:
+      animation: animation.common_crate.idle
+      loop: false
+      trigger:
+        type: RIGHT_CLICK
+      item:
+        required: false
+      cooldown:
+        time: 1
+      actions:
+        - type: SOUND
+          sound: entity.villager.no
+          volume: 0.5
+          pitch: 1.2
+
+
+epic_crate:
+  display:
+    name: "&5✦ Epic Crate"
+    material: CHEST
+    lore:
+      - "&7Right-click to place"
+    slot: 14
+
+  model:
+    id: epic_crate
+    scale: 1.0
+    offset-x: 0.0
+    offset-y: 0.0
+    offset-z: 0.0
+
+  placement:
+    type: BLOCK
+    base-material: BARRIER
+
+  state:
+    initial: DEFAULT
+
+  animations:
+    open:
+      animation: animation.common_crate.open
+      loop: false
+      trigger:
+        type: RIGHT_CLICK
+      item:
+        provider: oraxen
+        id: "Epic Key"
+        consume: true
+        check: HAND
+      cooldown:
+        time: 2
+      actions:
+        - type: SOUND
+          sound: entity.firework_rocket.blast
+          volume: 1.0
+          pitch: 0.8
+
+    idle:
+      animation: animation.common_crate.idle
+      loop: false
+      trigger:
+        type: RIGHT_CLICK
+      item:
+        required: false
+      cooldown:
+        time: 1
+      actions:
+        - type: SOUND
+          sound: entity.villager.no
+          volume: 0.5
+          pitch: 1.2
+
+
+legendary_crate:
+  display:
+    name: "&6✦ Legendary Crate"
+    material: CHEST
+    lore:
+      - "&7Right-click to place"
+    slot: 16
+
+  model:
+    id: legendary_crate
+    scale: 1.0
+    offset-x: 0.0
+    offset-y: 0.0
+    offset-z: 0.0
+
+  placement:
+    type: BLOCK
+    base-material: BARRIER
+
+  state:
+    initial: DEFAULT
+
+  animations:
+    open:
+      animation: animation.common_crate.open
+      loop: false
+      trigger:
+        type: RIGHT_CLICK
+      item:
+        provider: oraxen
+        id: "Legendary Key"
+        consume: true
+        check: HAND
+      cooldown:
+        time: 2
+      actions:
+        - type: SOUND
+          sound: entity.firework_rocket.blast
+          volume: 1.0
+          pitch: 0.6
+
+    idle:
+      animation: animation.common_crate.idle
+      loop: false
+      trigger:
+        type: RIGHT_CLICK
+      item:
+        required: false
+      cooldown:
+        time: 1
+      actions:
+        - type: SOUND
+          sound: entity.villager.no
+          volume: 0.5
+          pitch: 1.2

@@ -1,0 +1,27 @@
+debug: false
+
+gui:
+  title: "&8⬛ Model Selector"
+  size: 54
+
+defaults:
+  cooldown: 3
+
+storage:
+  auto-save: 5
+
+messages:
+  prefix: "&7[&bModelFW&7] "
+  no-permission: "&cYou don't have permission!"
+  object-not-found: "&cObject not found: &e%object%"
+  placed: "&aObject &e%object% &aplaced successfully!"
+  removed: "&cObject removed!"
+  cooldown: "&cPlease wait &e%time% &cseconds!"
+  reload: "&aConfiguration reloaded! &7(%time%ms)"
+  item-given: "&aYou received &e%object%&a!"
+  missing-item: "&cYou need &e%item% &cto do this!"
+  no-console: "&cThis command can only be used by players!"
+  inspect-header: "&7&m----------&r &bInstance Info &7&m----------"
+  inspect-none: "&cNo instance found at target location."
+  debug-enabled: "&aDebug mode enabled!"
+  debug-disabled: "&cDebug mode disabled!"
