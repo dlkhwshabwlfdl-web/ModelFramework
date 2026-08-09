@@ -11,17 +11,18 @@
 
 ## Features
 
-* 🎬 Custom 3D model animations
-* 🖱️ Player interaction triggers
-* ⚔️ Item-based animation conditions
-* 🔧 Advanced model and animation control
-* 🔌 BetterModel integration
-* 🧩 Optional ItemsAdder support
+* <img src="assets/icons/animation.svg" width="18"> Custom 3D model animations
+* <img src="assets/icons/interaction.svg" width="18"> Player interaction triggers
+* <img src="assets/icons/condition.svg" width="18"> Item-based animation conditions
+* <img src="assets/icons/control.svg" width="18"> Advanced model and animation control
+* <img src="assets/icons/bettermodel.svg" width="18"> BetterModel integration
+* <img src="assets/icons/itemsadder.svg" width="18"> Optional ItemsAdder support
 
 ## License
 
 This project is provided under the **ModelFramework License**.
 See [`LICENSE`](LICENSE) for details.
+
 
 # 🎮 ModelFramework
 
