@@ -31,6 +31,8 @@ public class FrameworkObject {
 
     private final Map<String, ObjectAnimation> animations = new LinkedHashMap<>();
 
+    private float rotationOffset = 0.0f;
+
     public FrameworkObject(String id) {
         this.id = id;
     }
@@ -154,4 +156,6 @@ public class FrameworkObject {
     public ObjectAnimation getAnimation(String name) {
         return animations.get(name.toLowerCase());
     }
+    public float getRotationOffset() { return rotationOffset; }
+    public void setRotationOffset(float rotationOffset) { this.rotationOffset = rotationOffset; }
 }

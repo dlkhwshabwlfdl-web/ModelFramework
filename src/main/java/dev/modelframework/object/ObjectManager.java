@@ -100,6 +100,7 @@ public class ObjectManager {
             obj.setOffsetX(model.getDouble("offset-x", 0.0));
             obj.setOffsetY(model.getDouble("offset-y", 0.0));
             obj.setOffsetZ(model.getDouble("offset-z", 0.0));
+            obj.setRotationOffset((float) model.getDouble("rotation-offset", 0.0));
         } else {
             obj.setModelId(id);
         }

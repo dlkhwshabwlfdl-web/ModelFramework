@@ -44,7 +44,8 @@ public class InstanceManager {
 
         Location blockCenter = location.getBlock().getLocation().add(0.5, 0.0, 0.5);
         float snappedYaw = snapYaw(location.getYaw());
-        blockCenter.setYaw(snappedYaw);
+        float finalYaw = snappedYaw + obj.getRotationOffset();
+        blockCenter.setYaw(finalYaw);
         blockCenter.setPitch(0);
 
         Location displayLoc = blockCenter.clone().add(
@@ -58,17 +59,16 @@ public class InstanceManager {
             return null;
         }
 
-        displayLoc.setYaw(snappedYaw);
+        displayLoc.setYaw(finalYaw);
 
-        // Remove any leftover ItemDisplay at this location
         cleanEntitiesAt(displayLoc);
 
         ItemDisplay display = displayLoc.getWorld().spawn(displayLoc, ItemDisplay.class, spawned -> {
             spawned.setGravity(false);
-            spawned.setPersistent(false); // NOT persistent - we manage lifecycle
+            spawned.setPersistent(false);
             spawned.setInvulnerable(true);
             spawned.setSilent(true);
-            spawned.setRotation(snappedYaw, 0);
+            spawned.setRotation(finalYaw, 0);
         });
 
         EntityTracker tracker = plugin.getBetterModelHook().spawnOnEntity(obj.getModelId(), display);
@@ -93,7 +93,6 @@ public class InstanceManager {
         instances.put(instance.getId(), instance);
         locationIndex.put(instance.getLocationKey(), instance);
 
-        // Scale with delay after BetterModel finishes setup
         if (obj.getScale() != 1.0D) {
             final double finalScale = obj.getScale();
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
@@ -104,7 +103,8 @@ public class InstanceManager {
         }
 
         plugin.debug("Created instance #" + instance.getId()
-                + " object='" + objectId + "' yaw=" + snappedYaw
+                + " object='" + objectId + "' yaw=" + finalYaw
+                + " (snap=" + snappedYaw + " offset=" + obj.getRotationOffset() + ")"
                 + " at " + instance.getLocationKey());
 
         saveAll();
