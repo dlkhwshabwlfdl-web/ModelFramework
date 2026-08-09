@@ -2,6 +2,27 @@
 
 ![ModelFramework Demo](assets/demo.gif)
 
+> ⚠️ **Premium Version**
+>
+> This repository contains a limited public version of ModelFramework.
+> The complete version, including the full source code and all features, is available on Spigot.
+>
+> 🔗 **Spigot:** [Your Spigot Link]
+
+## Features
+
+* 🎬 Custom 3D model animations
+* 🖱️ Player interaction triggers
+* ⚔️ Item-based animation conditions
+* 🔧 Advanced model and animation control
+* 🔌 BetterModel integration
+* 🧩 Optional ItemsAdder support
+
+## License
+
+This project is provided under the **ModelFramework License**.
+See [`LICENSE`](LICENSE) for details.
+
 # 🎮 ModelFramework
 
 A lightweight, clean, and extensible Paper plugin framework for connecting **BetterModel** models to interactive world objects.
