@@ -1,3 +1,7 @@
+## 🎬 Demo
+
+![ModelFramework Demo](assets/demo.gif)
+
 # 🎮 ModelFramework
 
 A lightweight, clean, and extensible Paper plugin framework for connecting **BetterModel** models to interactive world objects.
