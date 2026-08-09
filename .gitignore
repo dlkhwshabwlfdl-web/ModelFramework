@@ -11,6 +11,7 @@ target/
 build/
 out/
 bin/
+assets/
 
 # === Maven ===
 dependency-reduced-pom.xml
