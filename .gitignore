@@ -1,4 +1,5 @@
 # === IDE ===
+
 .idea/
 *.iml
 *.ipr
@@ -7,13 +8,12 @@
 *.code-workspace
 
 # === Build ===
-target/
-build/
-out/
-bin/
-assets/
+
+assets/*
+!assets/demo.gif
 
 # === Maven ===
+
 dependency-reduced-pom.xml
 pom.xml.tag
 pom.xml.releaseBackup
@@ -22,20 +22,24 @@ pom.xml.next
 release.properties
 
 # === OS ===
+
 .DS_Store
 Thumbs.db
 desktop.ini
 
 # === Java ===
+
 *.class
 *.jar
 *.war
 *.ear
 
 # === Logs ===
+
 *.log
 
 # === Plugin test server ===
+
 server/
 test-server/
 run/
@@ -43,6 +47,7 @@ plugins/
 logs/
 
 # === Misc ===
+
 *.bak
 *.tmp
 *.swp
