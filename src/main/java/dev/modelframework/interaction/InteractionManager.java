@@ -54,13 +54,8 @@ public class InteractionManager implements Listener {
                 + " trigger=" + trigger
                 + " state=" + instance.getState());
 
-        // Sort: animations with item requirement first
-        List<ObjectAnimation> sorted = new ArrayList<>(obj.getAnimations().values());
-        sorted.sort((a, b) -> {
-            if (a.isItemRequired() && !b.isItemRequired()) return -1;
-            if (!a.isItemRequired() && b.isItemRequired()) return 1;
-            return 0;
-        });
+        // Get pre-sorted animations
+        List<ObjectAnimation> sorted = obj.getSortedAnimations();
 
         for (ObjectAnimation anim : sorted) {
             if (anim.getTriggerType() != trigger) continue;
