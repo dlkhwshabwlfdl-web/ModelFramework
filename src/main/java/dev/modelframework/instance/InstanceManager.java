@@ -28,6 +28,7 @@ public class InstanceManager {
 
     private final Map<Integer, ObjectInstance> instances = new ConcurrentHashMap<>();
     private final Map<String, ObjectInstance> locationIndex = new ConcurrentHashMap<>();
+    private final Map<String, List<ObjectInstance>> chunkIndex = new ConcurrentHashMap<>();
 
     private int nextId = 1;
 
@@ -92,6 +93,7 @@ public class InstanceManager {
 
         instances.put(instance.getId(), instance);
         locationIndex.put(instance.getLocationKey(), instance);
+        addToChunkIndex(instance);
 
         if (obj.getScale() != 1.0D) {
             final double finalScale = obj.getScale();
@@ -116,6 +118,7 @@ public class InstanceManager {
         if (instance == null) return;
 
         locationIndex.remove(instance.getLocationKey());
+        removeFromChunkIndex(instance);
 
         Tracker tracker = instance.getTracker();
         if (tracker != null) {
@@ -195,6 +198,73 @@ public class InstanceManager {
             }
         }
         return removed;
+    }
+
+    public void despawnInstance(ObjectInstance instance) {
+        Tracker tracker = instance.getTracker();
+        if (tracker != null) {
+            plugin.getBetterModelHook().close(tracker);
+            instance.setTracker(null);
+        }
+
+        Entity entity = instance.getBaseEntity();
+        if (entity != null && entity.isValid()) {
+            entity.remove();
+            instance.setBaseEntity(null);
+        }
+    }
+
+    public void respawnInstance(ObjectInstance instance) {
+        if (instance.getBaseEntity() != null && instance.getBaseEntity().isValid()) {
+            return; // Already spawned
+        }
+
+        FrameworkObject obj = plugin.getObjectManager().getObject(instance.getObjectId());
+        if (obj == null) return;
+
+        Location loc = instance.getLocation();
+        if (loc == null || loc.getWorld() == null) return;
+        if (!loc.getChunk().isLoaded()) return;
+
+        Location displayLoc = loc.clone().add(
+                obj.getOffsetX(),
+                obj.getOffsetY(),
+                obj.getOffsetZ()
+        );
+
+        float savedYaw = instance.getYaw();
+        displayLoc.setYaw(savedYaw);
+
+        ItemDisplay display = displayLoc.getWorld().spawn(displayLoc, ItemDisplay.class, spawned -> {
+            spawned.setGravity(false);
+            spawned.setPersistent(false);
+            spawned.setInvulnerable(true);
+            spawned.setSilent(true);
+            spawned.setRotation(savedYaw, 0);
+        });
+
+        EntityTracker tracker = plugin.getBetterModelHook().spawnOnEntity(obj.getModelId(), display);
+        if (tracker == null) {
+            display.remove();
+            return;
+        }
+
+        instance.setBaseEntity(display);
+        instance.setTracker(tracker);
+
+        if (obj.getBaseMaterial() != null && obj.getBaseMaterial() != Material.AIR) {
+            loc.getBlock().setType(obj.getBaseMaterial(), false);
+        }
+
+        locationIndex.put(instance.getLocationKey(), instance);
+
+        if (obj.getScale() != 1.0D) {
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                if (!tracker.isClosed()) {
+                    plugin.getBetterModelHook().applyScale(tracker, obj.getScale());
+                }
+            }, 20L);
+        }
     }
 
     public void respawnAll() {
@@ -337,6 +407,7 @@ public class InstanceManager {
 
                 instances.put(id, instance);
                 locationIndex.put(instance.getLocationKey(), instance);
+                addToChunkIndex(instance);
 
                 if (id >= nextId) nextId = id + 1;
                 loaded++;
@@ -395,5 +466,47 @@ public class InstanceManager {
         if (yaw >= 45 && yaw < 135) return 90;
         if (yaw >= 135 && yaw < 225) return 180;
         return 270;
+    }
+
+    private String getChunkKey(ObjectInstance instance) {
+        int chunkX = (int) Math.floor(instance.getX()) >> 4;
+        int chunkZ = (int) Math.floor(instance.getZ()) >> 4;
+        return instance.getWorldName() + ":" + chunkX + ":" + chunkZ;
+    }
+
+    private void addToChunkIndex(ObjectInstance instance) {
+        String chunkKey = getChunkKey(instance);
+        chunkIndex.computeIfAbsent(chunkKey, k -> new java.util.concurrent.CopyOnWriteArrayList<>()).add(instance);
+    }
+
+    private void removeFromChunkIndex(ObjectInstance instance) {
+        String chunkKey = getChunkKey(instance);
+        List<ObjectInstance> list = chunkIndex.get(chunkKey);
+        if (list != null) {
+            list.remove(instance);
+            if (list.isEmpty()) {
+                chunkIndex.remove(chunkKey);
+            }
+        }
+    }
+
+    public void respawnInstancesInChunk(String worldName, int chunkX, int chunkZ) {
+        String chunkKey = worldName + ":" + chunkX + ":" + chunkZ;
+        List<ObjectInstance> list = chunkIndex.get(chunkKey);
+        if (list != null) {
+            for (ObjectInstance instance : list) {
+                respawnInstance(instance);
+            }
+        }
+    }
+
+    public void despawnInstancesInChunk(String worldName, int chunkX, int chunkZ) {
+        String chunkKey = worldName + ":" + chunkX + ":" + chunkZ;
+        List<ObjectInstance> list = chunkIndex.get(chunkKey);
+        if (list != null) {
+            for (ObjectInstance instance : list) {
+                despawnInstance(instance);
+            }
+        }
     }
 }

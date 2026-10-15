@@ -30,6 +30,7 @@ public class FrameworkObject {
     private double scale = 1.0;
 
     private final Map<String, ObjectAnimation> animations = new LinkedHashMap<>();
+    private List<ObjectAnimation> sortedAnimations;
 
     private float rotationOffset = 0.0f;
 
@@ -151,6 +152,19 @@ public class FrameworkObject {
 
     public void addAnimation(String name, ObjectAnimation animation) {
         animations.put(name.toLowerCase(), animation);
+        sortedAnimations = null; // Invalidate cache
+    }
+
+    public List<ObjectAnimation> getSortedAnimations() {
+        if (sortedAnimations == null) {
+            sortedAnimations = new java.util.ArrayList<>(animations.values());
+            sortedAnimations.sort((a, b) -> {
+                if (a.isItemRequired() && !b.isItemRequired()) return -1;
+                if (!a.isItemRequired() && b.isItemRequired()) return 1;
+                return 0;
+            });
+        }
+        return sortedAnimations;
     }
 
     public ObjectAnimation getAnimation(String name) {

@@ -93,6 +93,7 @@ public final class ModelFramework extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(placementManager, this);
         Bukkit.getPluginManager().registerEvents(guiManager, this);
         Bukkit.getPluginManager().registerEvents(new ItemSecurityListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new dev.modelframework.listener.ChunkListener(this), this);
 
         ModelCommand modelCommand = new ModelCommand(this);
         var cmd = getCommand("model");
