@@ -24,6 +24,7 @@ public class ObjectInstance {
 
     // Runtime only
     private transient Tracker tracker;
+    private transient com.ticxo.modelengine.api.model.ModeledEntity modeledEntity;
     private transient UUID baseEntityUuid;
     private transient Entity cachedBaseEntity;
 
@@ -112,6 +113,14 @@ public class ObjectInstance {
 
     public void setTracker(Tracker tracker) {
         this.tracker = tracker;
+    }
+
+    public com.ticxo.modelengine.api.model.ModeledEntity getModeledEntity() {
+        return modeledEntity;
+    }
+
+    public void setModeledEntity(com.ticxo.modelengine.api.model.ModeledEntity modeledEntity) {
+        this.modeledEntity = modeledEntity;
     }
 
     public UUID getBaseEntityUuid() {

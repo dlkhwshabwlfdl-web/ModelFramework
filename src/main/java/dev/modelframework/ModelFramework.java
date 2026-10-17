@@ -27,6 +27,8 @@ public final class ModelFramework extends JavaPlugin {
     private static ModelFramework instance;
 
     private BetterModelHook betterModelHook;
+    private dev.modelframework.hook.ModelEngineHook modelEngineHook;
+    private dev.modelframework.hook.ViaVersionHook viaVersionHook;
     private ObjectManager objectManager;
     private InstanceManager instanceManager;
     private PlacementManager placementManager;
@@ -40,6 +42,8 @@ public final class ModelFramework extends JavaPlugin {
 
     private boolean debug = false;
     private boolean oraxenEnabled = false;
+    private boolean nexoEnabled = false;
+    private boolean itemsAdderEnabled = false;
     private boolean placeholderApiEnabled = false;
 
     @Override
@@ -57,6 +61,16 @@ public final class ModelFramework extends JavaPlugin {
             return;
         }
 
+        if (Bukkit.getPluginManager().isPluginEnabled("ViaVersion")) {
+            getLogger().info("ViaVersion found, enabling Dual-Engine compatibility.");
+            viaVersionHook = new dev.modelframework.hook.ViaVersionHook(this);
+        }
+
+        if (Bukkit.getPluginManager().isPluginEnabled("ModelEngine")) {
+            getLogger().info("ModelEngine found, enabling Dual-Engine compatibility.");
+            modelEngineHook = new dev.modelframework.hook.ModelEngineHook(this);
+        }
+
         Bukkit.getScheduler().runTask(this, this::finishEnable);
     }
 
@@ -69,9 +83,13 @@ public final class ModelFramework extends JavaPlugin {
         }
 
         oraxenEnabled = Bukkit.getPluginManager().isPluginEnabled("Oraxen");
+        nexoEnabled = Bukkit.getPluginManager().isPluginEnabled("Nexo");
+        itemsAdderEnabled = Bukkit.getPluginManager().isPluginEnabled("ItemsAdder");
         placeholderApiEnabled = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI");
 
         if (oraxenEnabled) getLogger().info("Oraxen found!");
+        if (nexoEnabled) getLogger().info("Nexo found!");
+        if (itemsAdderEnabled) getLogger().info("ItemsAdder found!");
         if (placeholderApiEnabled) getLogger().info("PlaceholderAPI found!");
 
         registerItemProviders();
@@ -94,6 +112,9 @@ public final class ModelFramework extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(guiManager, this);
         Bukkit.getPluginManager().registerEvents(new ItemSecurityListener(this), this);
         Bukkit.getPluginManager().registerEvents(new dev.modelframework.listener.ChunkListener(this), this);
+        if (viaVersionHook != null) {
+            Bukkit.getPluginManager().registerEvents(new dev.modelframework.listener.ViaVersionPlayerListener(this), this);
+        }
 
         ModelCommand modelCommand = new ModelCommand(this);
         var cmd = getCommand("model");
@@ -118,6 +139,9 @@ public final class ModelFramework extends JavaPlugin {
             getLogger().info("ModelFramework v" + getDescription().getVersion() + " enabled!");
             getLogger().info("Loaded " + objectManager.getObjects().size() + " objects, "
                     + instanceManager.getInstances().size() + " instances.");
+
+            // Generate Resourcepack files
+            new dev.modelframework.generator.ResourceGenerator(this).generateAll();
         }, 100L);
     }
 
@@ -143,6 +167,12 @@ public final class ModelFramework extends JavaPlugin {
         if (oraxenEnabled) {
             itemProviders.put("oraxen", new OraxenProvider());
         }
+        if (nexoEnabled) {
+            itemProviders.put("nexo", new dev.modelframework.item.NexoProvider());
+        }
+        if (itemsAdderEnabled) {
+            itemProviders.put("itemsadder", new dev.modelframework.item.ItemsAdderProvider());
+        }
     }
 
     public void reload() {
@@ -162,6 +192,8 @@ public final class ModelFramework extends JavaPlugin {
 
     public static ModelFramework getInstance() { return instance; }
     public BetterModelHook getBetterModelHook() { return betterModelHook; }
+    public dev.modelframework.hook.ModelEngineHook getModelEngineHook() { return modelEngineHook; }
+    public dev.modelframework.hook.ViaVersionHook getViaVersionHook() { return viaVersionHook; }
     public ObjectManager getObjectManager() { return objectManager; }
     public InstanceManager getInstanceManager() { return instanceManager; }
     public PlacementManager getPlacementManager() { return placementManager; }
@@ -179,6 +211,8 @@ public final class ModelFramework extends JavaPlugin {
     public boolean isDebug() { return debug; }
     public void setDebug(boolean debug) { this.debug = debug; }
     public boolean isOraxenEnabled() { return oraxenEnabled; }
+    public boolean isNexoEnabled() { return nexoEnabled; }
+    public boolean isItemsAdderEnabled() { return itemsAdderEnabled; }
     public boolean isPlaceholderApiEnabled() { return placeholderApiEnabled; }
 
     public void debug(String message) {
