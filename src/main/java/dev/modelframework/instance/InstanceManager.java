@@ -72,20 +72,34 @@ public class InstanceManager {
             spawned.setRotation(finalYaw, 0);
         });
 
-        EntityTracker tracker = plugin.getBetterModelHook().spawnOnEntity(obj.getModelId(), display);
-        if (tracker == null) {
-            display.remove();
-            plugin.getLogger().warning("Failed to create BetterModel tracker for '"
-                    + objectId + "' model='" + obj.getModelId() + "'");
-            return null;
-        }
-
         ObjectInstance instance = new ObjectInstance(
                 nextId++, objectId, blockCenter, obj.getInitialState()
         );
 
         instance.setBaseEntity(display);
-        instance.setTracker(tracker);
+
+        if (plugin.getModelEngineHook() != null && plugin.getViaVersionHook() != null) {
+            com.ticxo.modelengine.api.model.ModeledEntity modeledEntity = plugin.getModelEngineHook().spawnOnEntity(obj.getModelId(), display);
+            if (modeledEntity != null) {
+                instance.setModeledEntity(modeledEntity);
+                plugin.debug("Using ModelEngine for '" + objectId + "'");
+            } else {
+                plugin.getLogger().warning("Failed to create ModelEngine tracker for '"
+                        + objectId + "' model='" + obj.getModelId() + "'");
+            }
+        }
+
+        EntityTracker tracker = plugin.getBetterModelHook().spawnOnEntity(obj.getModelId(), display);
+        if (tracker == null) {
+            if (instance.getModeledEntity() == null) {
+                display.remove();
+                plugin.getLogger().warning("Failed to create BetterModel tracker for '"
+                        + objectId + "' model='" + obj.getModelId() + "'");
+                return null;
+            }
+        } else {
+            instance.setTracker(tracker);
+        }
 
         if (obj.getBaseMaterial() != null && obj.getBaseMaterial() != Material.AIR) {
             blockCenter.getBlock().setType(obj.getBaseMaterial(), false);
@@ -98,8 +112,11 @@ public class InstanceManager {
         if (obj.getScale() != 1.0D) {
             final double finalScale = obj.getScale();
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                if (!tracker.isClosed()) {
-                    plugin.getBetterModelHook().applyScale(tracker, finalScale);
+                if (instance.getModeledEntity() != null) {
+                    plugin.getModelEngineHook().applyScale(instance.getModeledEntity(), obj.getModelId(), finalScale);
+                }
+                if (instance.getTracker() != null && !instance.getTracker().isClosed()) {
+                    plugin.getBetterModelHook().applyScale(instance.getTracker(), finalScale);
                 }
             }, 10L);
         }
@@ -119,6 +136,11 @@ public class InstanceManager {
 
         locationIndex.remove(instance.getLocationKey());
         removeFromChunkIndex(instance);
+
+        if (instance.getModeledEntity() != null) {
+            plugin.getModelEngineHook().close(instance.getModeledEntity());
+            instance.setModeledEntity(null);
+        }
 
         Tracker tracker = instance.getTracker();
         if (tracker != null) {
@@ -201,6 +223,11 @@ public class InstanceManager {
     }
 
     public void despawnInstance(ObjectInstance instance) {
+        if (instance.getModeledEntity() != null) {
+            plugin.getModelEngineHook().close(instance.getModeledEntity());
+            instance.setModeledEntity(null);
+        }
+
         Tracker tracker = instance.getTracker();
         if (tracker != null) {
             plugin.getBetterModelHook().close(tracker);
@@ -243,14 +270,24 @@ public class InstanceManager {
             spawned.setRotation(savedYaw, 0);
         });
 
-        EntityTracker tracker = plugin.getBetterModelHook().spawnOnEntity(obj.getModelId(), display);
-        if (tracker == null) {
-            display.remove();
-            return;
+        instance.setBaseEntity(display);
+
+        if (plugin.getModelEngineHook() != null && plugin.getViaVersionHook() != null) {
+            com.ticxo.modelengine.api.model.ModeledEntity modeledEntity = plugin.getModelEngineHook().spawnOnEntity(obj.getModelId(), display);
+            if (modeledEntity != null) {
+                instance.setModeledEntity(modeledEntity);
+            }
         }
 
-        instance.setBaseEntity(display);
-        instance.setTracker(tracker);
+        EntityTracker tracker = plugin.getBetterModelHook().spawnOnEntity(obj.getModelId(), display);
+        if (tracker == null) {
+            if (instance.getModeledEntity() == null) {
+                display.remove();
+                return;
+            }
+        } else {
+            instance.setTracker(tracker);
+        }
 
         if (obj.getBaseMaterial() != null && obj.getBaseMaterial() != Material.AIR) {
             loc.getBlock().setType(obj.getBaseMaterial(), false);
@@ -260,10 +297,26 @@ public class InstanceManager {
 
         if (obj.getScale() != 1.0D) {
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                if (!tracker.isClosed()) {
-                    plugin.getBetterModelHook().applyScale(tracker, obj.getScale());
+                if (instance.getModeledEntity() != null) {
+                    plugin.getModelEngineHook().applyScale(instance.getModeledEntity(), obj.getModelId(), obj.getScale());
+                }
+                if (instance.getTracker() != null && !instance.getTracker().isClosed()) {
+                    plugin.getBetterModelHook().applyScale(instance.getTracker(), obj.getScale());
                 }
             }, 20L);
+        }
+
+        // Apply visibility for players already in the chunk or online
+        if (plugin.getModelEngineHook() != null || plugin.getViaVersionHook() != null) {
+            for (org.bukkit.entity.Player player : Bukkit.getOnlinePlayers()) {
+                if (plugin.getModelEngineHook() != null) {
+                    plugin.getModelEngineHook().updateVisibility(instance.getModeledEntity(), instance.getBaseEntity(), player);
+                } else if (plugin.getViaVersionHook() != null) {
+                    if (plugin.getViaVersionHook().isOldClient(player)) {
+                        player.hideEntity(plugin, display);
+                    }
+                }
+            }
         }
     }
 
@@ -271,7 +324,7 @@ public class InstanceManager {
         int success = 0;
         int fail = 0;
 
-        List<ScaleEntry> pendingScale = new ArrayList<>();
+        List<ObjectInstance> pendingScale = new ArrayList<>();
 
         for (ObjectInstance instance : instances.values()) {
             FrameworkObject obj = plugin.getObjectManager().getObject(instance.getObjectId());
@@ -306,17 +359,27 @@ public class InstanceManager {
                 spawned.setRotation(savedYaw, 0);
             });
 
-            EntityTracker tracker = plugin.getBetterModelHook().spawnOnEntity(obj.getModelId(), display);
-            if (tracker == null) {
-                display.remove();
-                plugin.getLogger().warning("Failed to respawn instance #"
-                        + instance.getId() + " model='" + obj.getModelId() + "'");
-                fail++;
-                continue;
+            instance.setBaseEntity(display);
+
+            if (plugin.getModelEngineHook() != null && plugin.getViaVersionHook() != null) {
+                com.ticxo.modelengine.api.model.ModeledEntity modeledEntity = plugin.getModelEngineHook().spawnOnEntity(obj.getModelId(), display);
+                if (modeledEntity != null) {
+                    instance.setModeledEntity(modeledEntity);
+                }
             }
 
-            instance.setBaseEntity(display);
-            instance.setTracker(tracker);
+            EntityTracker tracker = plugin.getBetterModelHook().spawnOnEntity(obj.getModelId(), display);
+            if (tracker == null) {
+                if (instance.getModeledEntity() == null) {
+                    display.remove();
+                    plugin.getLogger().warning("Failed to respawn instance #"
+                            + instance.getId() + " model='" + obj.getModelId() + "'");
+                    fail++;
+                    continue;
+                }
+            } else {
+                instance.setTracker(tracker);
+            }
 
             if (obj.getBaseMaterial() != null && obj.getBaseMaterial() != Material.AIR) {
                 loc.getBlock().setType(obj.getBaseMaterial(), false);
@@ -325,7 +388,7 @@ public class InstanceManager {
             locationIndex.put(instance.getLocationKey(), instance);
 
             if (obj.getScale() != 1.0D) {
-                pendingScale.add(new ScaleEntry(tracker, obj.getScale()));
+                pendingScale.add(instance);
             }
 
             success++;
@@ -334,9 +397,14 @@ public class InstanceManager {
         // Apply scales after BetterModel fully renders
         if (!pendingScale.isEmpty()) {
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                for (ScaleEntry entry : pendingScale) {
-                    if (!entry.tracker.isClosed()) {
-                        plugin.getBetterModelHook().applyScale(entry.tracker, entry.scale);
+                for (ObjectInstance inst : pendingScale) {
+                    FrameworkObject obj = plugin.getObjectManager().getObject(inst.getObjectId());
+                    if (obj == null) continue;
+                    if (inst.getModeledEntity() != null) {
+                        plugin.getModelEngineHook().applyScale(inst.getModeledEntity(), obj.getModelId(), obj.getScale());
+                    }
+                    if (inst.getTracker() != null && !inst.getTracker().isClosed()) {
+                        plugin.getBetterModelHook().applyScale(inst.getTracker(), obj.getScale());
                     }
                 }
                 plugin.debug("Applied scale to " + pendingScale.size() + " instances.");
@@ -347,12 +415,16 @@ public class InstanceManager {
                 + (fail > 0 ? " (" + fail + " failed)" : "") + ".");
     }
 
-    private record ScaleEntry(EntityTracker tracker, double scale) {}
 
     public void despawnAll() {
         int closed = 0;
 
         for (ObjectInstance instance : instances.values()) {
+            if (instance.getModeledEntity() != null) {
+                plugin.getModelEngineHook().close(instance.getModeledEntity());
+                instance.setModeledEntity(null);
+            }
+
             Tracker tracker = instance.getTracker();
             if (tracker != null) {
                 plugin.getBetterModelHook().close(tracker);

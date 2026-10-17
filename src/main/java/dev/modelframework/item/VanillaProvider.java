@@ -37,6 +37,16 @@ public class VanillaProvider implements ItemProvider {
     }
 
     @Override
+    public ItemStack createItem(String itemId) {
+        try {
+            Material material = Material.valueOf(itemId.toUpperCase());
+            return new ItemStack(material);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
+    @Override
     public void consumeItem(Player player, String itemId, int amount) {
         try {
             Material material = Material.valueOf(itemId.toUpperCase());
@@ -86,12 +96,4 @@ public class VanillaProvider implements ItemProvider {
         }
     }
 
-    @Override
-    public ItemStack createItem(String itemId) {
-        try {
-            return new ItemStack(Material.valueOf(itemId.toUpperCase()));
-        } catch (IllegalArgumentException e) {
-            return new ItemStack(Material.STONE);
-        }
-    }
 }
