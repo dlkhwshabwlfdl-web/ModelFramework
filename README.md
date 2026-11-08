@@ -34,7 +34,7 @@ Transform any BetterModel model into a fully interactive object — crates, furn
 - **BetterModel Integration** — Seamless connection to BetterModel 3.3.0+ API
 - **Animation System** — Trigger animations on interaction with full control
 - **Smart Interaction** — RIGHT_CLICK, LEFT_CLICK, SHIFT variants with item requirements
-- **Item Provider System** — Oraxen, ItemsAdder, and Vanilla item support
+- **Item Provider System** — Oraxen, ItemsAdder, Nexo, and Vanilla item support
 - **Hand/Inventory Check** — Configure whether required items must be held or just in inventory
 - **State Machine** — Simple but powerful state system for objects
 - **Smart Rotation** — Models automatically face the player direction
@@ -45,6 +45,8 @@ Transform any BetterModel model into a fully interactive object — crates, furn
 - **Action System** — Sounds, messages, and commands on triggers
 - **Cooldown System** — Per-player, per-instance cooldowns
 - **Performance** — Fully event-driven, no tick loops
+- **Smart Dual-Engine Rendering** — ModelEngine and BetterModel shown dynamically based on client protocol (ViaVersion), with ModelEngine fallback for clients below 1.21.4
+- **Resource Generator** — Auto-generate resource files for Nexo, ItemsAdder, and Oraxen
 
 > **ModelFramework is not a crate plugin.**
 > It's a generic framework. Crates are just one example.
@@ -56,7 +58,7 @@ Transform any BetterModel model into a fully interactive object — crates, furn
 | Dependency | Version | Required |
 |---|---|---|
 | **Paper** | 1.21.1+ | ✅ Yes |
-| **Java** | 25+ | ✅ Yes |
+| **Java** | 21+ | ✅ Yes |
 | **BetterModel** | 3.3.0+ | ✅ Yes |
 | **Oraxen** | 1.207.0+ | ❌ Optional |
 | **ItemsAdder** | — | ❌ Optional |
